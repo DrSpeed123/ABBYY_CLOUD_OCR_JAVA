@@ -55,8 +55,9 @@ public class ClientHandler implements Runnable {
                 fileOutputStream.flush();
                 fileOutputStream.close();
 
-                new Thread(new FileSender(this, fileName, server)).start();
                 System.out.println("File sent");
+                
+                new Thread(new FileSender(this, fileName, server)).start();
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
             }
