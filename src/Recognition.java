@@ -3,6 +3,7 @@ import com.abbyy.ocrsdk.ProcessingSettings;
 import com.abbyy.ocrsdk.Task;
 import com.abbyy.ocrsdk.TextFieldSettings;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.Scanner;
@@ -10,15 +11,17 @@ import java.util.Scanner;
 /**
  * Created by DRSPEED-PC on 19.04.2017.
  */
-public class RecognitionTestApp {
+public class Recognition {
     private static Client restClient;
-    private static String PATH = "C:\\Users\\DRSPEED-PC\\Pictures\\IMG_1710.JPG";
-    private static String outputPath = "C:\\Users\\DRSPEED-PC\\Documents\\TEST_ABBYY\\11.xml";
-    private static String PathToXSDSchema = "C:\\Users\\DRSPEED-PC\\Documents\\TEST_ABBYY\\Template1.xml";
-    private static int Sleep = 2000;
+    private static String PATH = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\PICTURES\\";
+    private static String outputPath = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\RESULTS\\";
+    private static String pathToXSDSchema = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\TEMPLATES\\taskTemplate.xml";
+    private static int sleep = 2000;
     private static String SETTINGS_PATH = "C:\\Users\\DRSPEED-PC\\Documents\\TEST_ABBYY\\TestDescription.xsd";
+    public boolean isTaskComplete;
+    public String resultFilePath;
 
-    public static void main(String[] args) throws Exception {
+    public Recognition(String fileName) throws Exception {
         System.out.println("Process documents using ABBYY Cloud OCR SDK.\n");
         long start = System.currentTimeMillis();
 
@@ -31,42 +34,59 @@ public class RecognitionTestApp {
         restClient.applicationId = ClientSettings.APPLICATION_ID;
         restClient.password = ClientSettings.PASSWORD;
 
-        ProcessingSettings PSettings = new ProcessingSettings();
-//        TextFieldSettings PSettings = new TextFieldSettings();
-        PSettings.setLanguage("Russian,English");
-//        PSettings.setLanguage("Russian");
-        PSettings.setOutputFormat(ProcessingSettings.OutputFormat.xml);
-        PSettings.setProfile(ProcessingSettings.OCRProfile.textExtraction);
-        PSettings.setTextType("normal,ocrB");
-        PSettings.setImageSource(ProcessingSettings.ImageSource.scanner);
-        PSettings.setCorrectOrientation("false");
-        PSettings.setIsCorrectSkew("false");
-        PSettings.setIsReadBarcodes("false");
+//        ProcessingSettings PSettings = new ProcessingSettings();
+////        TextFieldSettings PSettings = new TextFieldSettings();
+//        PSettings.setLanguage("Russian,English");
+////        PSettings.setLanguage("Russian");
+//        PSettings.setOutputFormat(ProcessingSettings.OutputFormat.xml);
+//        PSettings.setProfile(ProcessingSettings.OCRProfile.textExtraction);
+//        PSettings.setTextType("normal,ocrB");
+//        PSettings.setImageSource(ProcessingSettings.ImageSource.scanner);
+//        PSettings.setCorrectOrientation("false");
+//        PSettings.setIsCorrectSkew("false");
+//        PSettings.setIsReadBarcodes("false");
 //        PSettings.setIsWriteRecognitionVariants("true");
 
-
-        Task task = null;
+        String filePath = PATH + fileName;
+        this.resultFilePath = outputPath + fileName + ".xml";
+        Task downloadPicture;
+        Task getResult = null;
+        isTaskComplete = false;
 //        task = restClient.processTextField(PATH, PSettings);
-        task = restClient.processImage(PATH, PSettings);
-//        task = restClient.submitImage(PATH,"");
-        System.out.println("Uploading file to URL: " + restClient.serverUrl + "/processImage?" + PSettings.asUrlParams() + "..");
-
+//        task = restClient.processImage(PATH, PSettings);
+        downloadPicture = restClient.submitImage(filePath,"");
+//        System.out.println("Uploading file to URL: " + restClient.serverUrl + "/processImage?" + PSettings.asUrlParams() + "..");
+        System.out.println("Uploading file to URL: " + restClient.serverUrl + "/submitImage..");
 
         long timeToUpload = System.currentTimeMillis() - start;
         System.out.println("Time To Upload: " + timeToUpload);
-        task = restClient.processFields(task.Id, PathToXSDSchema);
 
-        waitAndDownloadResult(task, outputPath);
+        try {
+            getResult = restClient.processFields(downloadPicture.Id, pathToXSDSchema);
+        }catch (Exception e){
+            System.out.println(e.getStackTrace());
+        }
+
+//        String resultFilePath = outputPath + "result_" + getResult.Id + ".xml";
+
+
+//        FileOutputStream resultFile = new FileOutputStream(new File(resultFilePath), true);
+
+
+        waitAndDownloadResult(getResult, resultFilePath);
+//        resultFile.close();
         long timeConsumedMillis = System.currentTimeMillis() - start;
 
-        System.out.println("Task GUID = " + task.Id);
-        System.out.println("Task Status = " + task.Status);
-        System.out.println("Task DownloadUrl = " + task.DownloadUrl);
+
+        System.out.println("Task GUID = " + getResult.Id);
+        System.out.println("Task Status = " + getResult.Status);
+        System.out.println("Task DownloadUrl = " + getResult.DownloadUrl);
 
         System.out.println("Time consumed: " + timeConsumedMillis);
 //        restClient.processFields(task.Id, PathToXSDSchema);
 //        restClient.deleteTask(task.Id);
 //        System.out.println("Task " + task.Id + " deleted");
+        isTaskComplete = true;
     }
     /**
      * Check that user specified application id and password.
@@ -94,8 +114,8 @@ public class RecognitionTestApp {
         // at http://ocrsdk.com/documentation/apireference/listFinishedTasks/).
         while (task.isTaskActive()) {
 
-            Thread.sleep(Sleep);
-            System.out.println("Waiting " + Sleep + "ms..");
+            Thread.sleep(sleep);
+            System.out.println("Waiting " + sleep + "ms..");
             task = restClient.getTaskStatus(task.Id);
         }
         return task;
@@ -105,6 +125,7 @@ public class RecognitionTestApp {
      */
     private static void waitAndDownloadResult(Task task, String outputPath)
             throws Exception {
+
         task = waitForCompletion(task);
 
         if (task.Status == Task.TaskStatus.Completed) {
