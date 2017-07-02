@@ -261,7 +261,7 @@ public class ProcessManyFiles {
 
 						if( task.Status == Task.TaskStatus.Completed ) {
 						String outputPath = outputDir + "/" + fileName;
-						restClient.downloadResult(task, outputPath);
+						SortedMap<String, WordDto> result = restClient.downloadResult(task, outputPath);
 						System.out.println( String.format( "Ready %s, %d remains", fileName, taskIds.size() ) );
 						} else {
 							System.out.println( String.format( "Failed %s, %d remains", fileName, taskIds.size() ));

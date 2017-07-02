@@ -7,9 +7,9 @@ import java.net.*;
  */
 public class ClientSettings {
 	// Name of application you created
-	public static final String APPLICATION_ID = "RecognitionTestApp";
+	public static final String APPLICATION_ID = "TestTestTestTest222";
 	// Password should be sent to your e-mail after application was created
-	public static final String PASSWORD = "bXU8W/3G0eyivuLfxAuq0aLb";
+	public static final String PASSWORD = "cO5uwvgQPvaxiGrovu7yJ1lt";
 	
 //	public static void setupProxy()
 //	{

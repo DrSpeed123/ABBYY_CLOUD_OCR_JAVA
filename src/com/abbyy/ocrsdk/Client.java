@@ -2,15 +2,21 @@ package com.abbyy.ocrsdk;
 
 import java.io.*;
 import java.net.*;
-import java.nio.CharBuffer;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import javafx.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class Client {
 	public String applicationId;
@@ -124,7 +130,88 @@ public class Client {
 		return getTaskListResponse(connection);
 	}
 
-	public void downloadResult(Task task, String outputFile) throws Exception {
+	private SortedMap<String, WordDto> processResult(BufferedInputStream stream) throws ParserConfigurationException, IOException, SAXException {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(stream);
+		doc.getDocumentElement().normalize();
+		SortedMap<String, SortedMap<Pair<Integer, Integer>, SymbolNode>> resultUnhandled = new TreeMap<>();
+		NodeList textList = doc.getElementsByTagName("text");
+		final BiFunction<Pair<Integer, Integer>, Pair<Integer, Integer>, Integer> pairComparator = (pair1, pair2) -> {
+			int res = pair1.getKey().compareTo(pair2.getKey());
+			if (res == 0) {
+				return pair1.getValue().compareTo(pair2.getValue());
+			}
+			return res;
+		};
+		for (int textInd = 0; textInd < textList.getLength(); textInd++) {
+			SortedMap<Pair<Integer, Integer>, SymbolNode> curLine = new TreeMap<>(pairComparator::apply);
+			Node textNode = textList.item(textInd);
+			if (textNode.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			NodeList charList = ((Element) textNode).getElementsByTagName("char");
+			for (int charInd = 0; charInd < charList.getLength(); charInd++) {
+				Node charNode = charList.item(charInd);
+				if (charNode.getNodeType() != Node.ELEMENT_NODE || "^".equals(charNode.getTextContent())) {
+					continue;
+				}
+				int left = Integer.parseInt(charNode.getAttributes().getNamedItem("left").getNodeValue());
+				int top = Integer.parseInt(charNode.getAttributes().getNamedItem("top").getNodeValue());
+				Integer leftI = left - (left % 5);
+				Integer topI = top - (top % 5);
+				Node suspNode = charNode.getAttributes().getNamedItem("suspicious");
+				boolean susp = suspNode != null && Boolean.parseBoolean(suspNode.getNodeValue());
+				SymbolNode symbol = new SymbolNode(charNode.getTextContent(), susp ? 1 : 2, 0);
+				curLine.put(new Pair<>(leftI, topI), symbol);
+			}
+			resultUnhandled.put(textNode.getAttributes().getNamedItem("id").getNodeValue(), curLine);
+		}
+
+		SortedMap<String, SortedMap<Pair<Integer, Integer>, SortedMap<String, Integer>>> resultProcessed = new TreeMap<>();
+		resultUnhandled.forEach((field, map) -> {
+			String curKey = field.substring(0, field.length() - 1);
+			if (!resultProcessed.containsKey(curKey)) {
+				SortedMap<Pair<Integer, Integer>, SortedMap<String, Integer>> resMap = new TreeMap<>(pairComparator::apply);
+				resultProcessed.put(curKey, resMap);
+			}
+			map.forEach((pair, symbol) -> {
+				if (!resultProcessed.get(curKey).containsKey(pair)) {
+					resultProcessed.get(curKey).put(pair, new TreeMap<>());
+				}
+				int byChar = resultProcessed.get(curKey).get(pair).getOrDefault(symbol.getValue(), 0);
+				resultProcessed.get(curKey).get(pair).put(symbol.getValue(), byChar + symbol.getWeight());
+				int total = resultProcessed.get(curKey).get(pair).getOrDefault("total", 0);
+				resultProcessed.get(curKey).get(pair).put("total", total + symbol.getWeight());
+			});
+		});
+		SortedMap<String, WordDto> result = new TreeMap<>();
+		resultProcessed.forEach((field, map) -> {
+			WordDto resWord = map.entrySet().stream().reduce(new WordDto("", false), (word, elem) -> {
+				Optional<Map.Entry<String, Integer>> max = elem.getValue().entrySet().stream()
+						.filter(l -> !"total".equals(l.getKey()))
+						.max(Comparator.comparingInt(Map.Entry::getValue));
+				if (elem.getValue().get("total") >= 3) {
+					max.ifPresent(stringIntegerEntry -> word.setValue(word.getValue() + stringIntegerEntry.getKey()));
+					if (elem.getValue().get("total") < 5) {
+						word.setSuspicious(true);
+					}
+				}
+				return word;
+			}, (el1, el2) -> new WordDto(el1.getValue() + el2.getValue(), el1.getSuspicious() || el2.getSuspicious()));
+			result.put(field, resWord);
+		});
+		return result;
+//		resultProcessed.forEach((field, map) -> {
+//			System.out.println("\n" + field);
+//			String result = map.values().stream()
+//					.map(SymbolNode::getValue)
+//					.reduce("", (res, val) -> res + val);
+//			System.out.println(" : " + result);
+//		});
+	}
+
+	public SortedMap<String, WordDto> downloadResult(Task task, String outputFile) throws Exception {
 		if (task.Status != Task.TaskStatus.Completed) {
 			throw new IllegalArgumentException("Invalid task status");
 		}
@@ -141,6 +228,7 @@ public class Client {
 
 		BufferedInputStream reader = new BufferedInputStream(
 				connection.getInputStream());
+		SortedMap<String, WordDto> result = processResult(reader);
 
 		FileOutputStream out = new FileOutputStream(outputFile);
 
@@ -153,6 +241,7 @@ public class Client {
 		} finally {
 			out.close();
 		}
+		return result;
 	}
 
 	public Task deleteTask(String taskId) throws Exception {

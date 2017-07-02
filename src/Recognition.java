@@ -1,25 +1,22 @@
 import com.abbyy.ocrsdk.Client;
-import com.abbyy.ocrsdk.ProcessingSettings;
 import com.abbyy.ocrsdk.Task;
-import com.abbyy.ocrsdk.TextFieldSettings;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.util.Scanner;
 
 /**
  * Created by DRSPEED-PC on 19.04.2017.
  */
 public class Recognition {
     private static Client restClient;
-    private static String PATH = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\PICTURES\\";
-    private static String outputPath = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\RESULTS\\";
-    private static String pathToXSDSchema = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\TEMPLATES\\taskTemplate.xml";
+    private static String PATH = "e:\\work\\ABBYY_CLOUD_OCR_JAVA\\";
+    private static String outputPath = "e:\\work\\ABBYY_CLOUD_OCR_JAVA\\";
+    private static String pathToXMLSchema = "e:\\work\\ABBYY_CLOUD_OCR_JAVA\\src\\taskTemplate.xml";
     private static int sleep = 2000;
     private static String SETTINGS_PATH = "C:\\Users\\DRSPEED-PC\\Documents\\TEST_ABBYY\\TestDescription.xsd";
     public boolean isTaskComplete;
     public String resultFilePath;
+
+    public static void main(String[] args) throws Exception {
+        Recognition recognition = new Recognition("9508034383445028.jpg");
+    }
 
     public Recognition(String fileName) throws Exception {
         System.out.println("Process documents using ABBYY Cloud OCR SDK.\n");
@@ -62,7 +59,7 @@ public class Recognition {
         System.out.println("Time To Upload: " + timeToUpload);
 
         try {
-            getResult = restClient.processFields(downloadPicture.Id, pathToXSDSchema);
+            getResult = restClient.processFields(downloadPicture.Id, pathToXMLSchema);
         }catch (Exception e){
             System.out.println(e.getStackTrace());
         }

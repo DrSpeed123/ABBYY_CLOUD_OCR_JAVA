@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://ocrsdk.com/schema/taskDescription-1.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ocrsdk.com/schema/taskDescription-1.0.xsd">
+<fieldTemplates>
+        <text id="simpleTextField" bottom="0" left="0" right="0" top="0">
+             <language>Russian</language>
+			 <letterSet>АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ</letterSet>
+             <textType>normal</textType>
+			 <oneTextLine>true</oneTextLine>
+			 <rotation>noRotation</rotation>
+        </text>
+         <text id="mixedTextField" bottom="0" left="0" right="0" top="0">
+             <language>Russian</language>
+			 <letterSet>АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ123456789</letterSet>
+             <textType>normal</textType>
+			 <oneTextLine>false</oneTextLine>
+			 <rotation>noRotation</rotation>
+        </text>
+        <text id="genderText" bottom="0" left="0" right="0" top="0">
+            <language>Russian</language>
+            <letterSet>МУЖЕН.</letterSet>
+            <textType>normal</textType>
+            <oneTextLine>true</oneTextLine>
+            <rotation>noRotation</rotation>
+        </text>
+        <text id="numberField" bottom="0" left="0" right="0" top="0">
+             <language>Russian</language>
+			 <letterSet>1234567890.</letterSet>
+             <rotation>clockwise</rotation>
+             <regExp>([0-9][0-9])\s([0-9][0-9])\s([0-9][0-9][0-9][0-9][0-9][0-9])</regExp>
+			 <oneTextLine>true</oneTextLine>
+        </text>
+    <text id="dateField" bottom="0" left="0" right="0" top="0">
+        <letterSet>1234567890.</letterSet>
+        <regExp>(([0-2][1-9])|(3[01]))\.(((|0)[1-9])|(1[0-2]))\.(([0-9][0-9][0-9][0-9])|([0-9][0-9]))</regExp>
+        <oneTextLine>true</oneTextLine>
+    </text>
+</fieldTemplates>
+<page applyTo="0">
+    <text template="simpleTextField" id="lastName0" left="780" top="10" right="1420" bottom="110" />
+    <text template="simpleTextField" id="lastName1" left="780" top="30" right="1420" bottom="130"/>
+    <text template="simpleTextField" id="lastName2" left="780" top="60" right="1420" bottom="160"/>
+    <text template="simpleTextField" id="lastName3" left="780" top="90" right="1420" bottom="190"/>
+    <text template="simpleTextField" id="firstName0" left="780" top="220" right="1420" bottom="340"/>
+    <text template="simpleTextField" id="firstName1" left="780" top="190" right="1420" bottom="290"/>
+    <text template="simpleTextField" id="firstName2" left="780" top="220" right="1420" bottom="320"/>
+    <text template="simpleTextField" id="firstName3" left="780" top="250" right="1420" bottom="350"/>
+    <text template="simpleTextField" id="middleName0" left="780" top="320" right="1420" bottom="440"/>
+    <text template="simpleTextField" id="middleName1" left="780" top="290" right="1420" bottom="390"/>
+    <text template="simpleTextField" id="middleName2" left="780" top="320" right="1420" bottom="420"/>
+    <text template="simpleTextField" id="middleName3" left="780" top="350" right="1420" bottom="450"/>
+    <text template="genderText" id="gender0" left="670" top="430" right="910" bottom="550"/>
+    <text template="genderText" id="gender1" left="670" top="370" right="910" bottom="470"/>
+    <text template="genderText" id="gender2" left="670" top="400" right="910" bottom="500"/>
+    <text template="genderText" id="gender3" left="670" top="430" right="910" bottom="530"/>
+    <text template="dateField" id="birthDate0" left="1080" top="430" right="1620" bottom="550"/>
+    <text template="dateField" id="birthDate1" left="1080" top="400" right="1620" bottom="500"/>
+    <text template="dateField" id="birthDate2" left="1080" top="430" right="1620" bottom="530"/>
+    <text template="dateField" id="birthDate3" left="1080" top="470" right="1620" bottom="570"/>
+    <text template="simpleTextField" id="birthPlace0" left="780" top="520" right="1720" bottom="650"/>
+    <text template="simpleTextField" id="birthPlace1" left="780" top="490" right="1720" bottom="590"/>
+    <text template="simpleTextField" id="birthPlace2" left="780" top="520" right="1720" bottom="620"/>
+    <text template="simpleTextField" id="birthPlace3" left="780" top="550" right="1720" bottom="650"/>
+    <text template="simpleTextField" id="birthPlace_0" left="780" top="580" right="1720" bottom="750"/>
+    <text template="simpleTextField" id="birthPlace_1" left="780" top="580" right="1720" bottom="680"/>
+    <text template="simpleTextField" id="birthPlace_2" left="780" top="610" right="1720" bottom="710"/>
+    <text template="simpleTextField" id="birthPlace_3" left="780" top="640" right="1720" bottom="740"/>
+    <text template="numberField" id="series0" left="1750" top="140" right="1900" bottom="350"/>
+    <text template="numberField" id="series1" left="1690" top="140" right="1840" bottom="350"/>
+    <text template="numberField" id="series2" left="1720" top="140" right="1870" bottom="350"/>
+    <text template="numberField" id="series3" left="1750" top="140" right="1890" bottom="350"/>
+    <text template="numberField" id="number0" left="1750" top="340" right="1900" bottom="850"/>
+    <text template="numberField" id="number1" left="1690" top="340" right="1840" bottom="850"/>
+    <text template="numberField" id="number2" left="1720" top="340" right="1870" bottom="850"/>
+    <text template="numberField" id="number3" left="1750" top="340" right="1890" bottom="850"/>
+</page>
+<!--<page applyTo="1">-->
+        <!--<text template="mixedTextField" id="issuedBy" left="10" top="10" right="20" bottom="30">-->
+                <!--<language>Russian</language>-->
+        <!--</text>-->
+        <!--<text template="numberField" id="issueDate" left="10" top="50" right="20" bottom="70">-->
+                <!--<language>Russian</language>-->
+				<!--<regExp>(((|0)[1-9])|([12][0-9])|(30)|(31))\.(((|0)[1-9])|(10)|(11)|(12))\.(([0-9][0-9][0-9][0-9])|([0-9][0-9]))</regExp>-->
+        <!--</text>               -->
+<!--</page>-->
+</document>
