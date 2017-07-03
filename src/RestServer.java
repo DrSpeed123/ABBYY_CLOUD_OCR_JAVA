@@ -1,10 +1,7 @@
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
@@ -15,17 +12,20 @@ import java.io.*;
 
 
 public class RestServer {
-    public String INPUT_FILE_DIRECTORY = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\PICTURES\\IN\\";
+    public String INPUT_FILE_DIRECTORY = "F:\\GIT\\OCR_WEB_REST\\TEMP\\IN\\";
+    public String ANSWER_FILE_DIRECTORY = "F:\\GIT\\OCR_WEB_REST\\TEMP\\OUT\\";
     public int sleep = 2000;
+    public String fileName;
 
     @POST
     @Path("/fileupload")  //Your Path or URL to call this service
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.MEDIA_TYPE_WILDCARD)
     public Response uploadFile(
-    @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
-    @FormDataParam("file") InputStream uploadedInputStream,
-    @FormDataParam("file") FormDataContentDisposition fileDetail) {
-        String uploadedFileLocation = INPUT_FILE_DIRECTORY + fileDetail.getFileName();
+            @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
+            @FormDataParam("file") InputStream uploadedInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileDetail) throws Exception {
+        fileName = fileDetail.getFileName();
+        String uploadedFileLocation = INPUT_FILE_DIRECTORY + fileName;
         System.out.println("Upload file to: " + uploadedFileLocation);
         File objFile=new File(uploadedFileLocation);
         if(objFile.exists())
@@ -36,16 +36,67 @@ public class RestServer {
 
         saveToFile(uploadedInputStream, uploadedFileLocation);
 
-        String output = "File uploaded via Jersey based RESTFul Webservice to: " + uploadedFileLocation;
+//        recognition(uploadedFileLocation);
+//        String output = "File uploaded via Jersey based RESTFul Webservice to: " + uploadedFileLocation + ". Result recieved from cloud.";
 
-        recognition(uploadedFileLocation);
+        Recognition recognition = new Recognition(uploadedFileLocation);
+        while (!recognition.isTaskComplete){
+            Thread.sleep(sleep);
+        }
+        System.out.println("Result recieved from cloud.");
 
-        return Response.status(200).entity(output).build();
+        String answerFileLocation = recognition.resultFilePath;
+        File file = new File(answerFileLocation);
+        Response.ResponseBuilder response = Response.ok((Object) file);
+        response.header("Content-Disposition", "attachment;filename=");
+        return response.build();
+
+//        return Response.status(200).entity(output).build();
 
     }
-    private void saveToFile(InputStream uploadedInputStream,
-            String uploadedFileLocation)
-    {
+
+    @GET
+    @Path("/downloadresult")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response downloadFile() {
+
+        String answerFileLocation = ANSWER_FILE_DIRECTORY + fileName;
+        File file = new File(answerFileLocation);
+        Response.ResponseBuilder response = Response.ok((Object) file);
+        response.header("Content-Disposition", "attachment;filename=");
+        return response.build();
+    }
+
+//    @GET
+//    @Path("/downloadresult")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public Response downloadResult(
+//            @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
+//            @FormDataParam("file") OutputStream downloadOutputStream,
+//            @FormDataParam("file") FormDataContentDisposition fileDetail
+//    ){
+//        String answerFileLocation = ANSWER_FILE_DIRECTORY + fileDetail.getFileName();
+//        try {
+//            FileInputStream fileInputStream = null;
+//            fileInputStream = new FileInputStream(answerFileLocation);
+//
+//
+//            fileInputStream.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        String output = "Done";
+//
+//        return Response.status(200).entity(output).build();
+//    }
+
+    /**
+     * Save POST to file
+     * @param uploadedInputStream - Input stream.
+     * @param uploadedFileLocation - File location.
+     */
+    private void saveToFile(InputStream uploadedInputStream, String uploadedFileLocation){
         try {
             OutputStream out = null;
             int read = 0;
@@ -61,17 +112,20 @@ public class RestServer {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Start recognition.
+     * @param filePath - Path to file for recognition class.
+     */
     private void recognition(String filePath){
-        Recognition recognition = null;
         try {
-            recognition = new Recognition(filePath);
+            Recognition recognition = new Recognition(filePath);
             while (!recognition.isTaskComplete){
                 Thread.sleep(sleep);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         System.out.println("Result recieved from cloud.");
     }
 }
