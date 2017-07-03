@@ -6,7 +6,7 @@ public class ServerMain {
 
     public static void main(String[] args) {
 //        Server server = new Server(SERVER_PORT);
-        RestServer server = new RestServer();
+//        RestServer server = new RestServer();
 //        new Thread(() -> {
 //            server.waitForClient();
 //        }).start();
