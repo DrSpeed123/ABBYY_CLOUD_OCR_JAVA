@@ -5,10 +5,10 @@ package main;
  */
 public class FileSender implements Runnable{
     private String fileName;
-    private Server server;
+    private TCPServer server;
     ClientHandler handler;
 
-    public FileSender(ClientHandler handler, String fileName, Server server) {
+    public FileSender(ClientHandler handler, String fileName, TCPServer server) {
         this.fileName = fileName;
         this.server = server;
         this.handler = handler;

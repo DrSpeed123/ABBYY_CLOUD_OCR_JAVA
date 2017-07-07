@@ -8,13 +8,13 @@ import java.net.Socket;
  */
 public class ClientHandler implements Runnable {
     private Socket socket;
-    private Server server;
+    private TCPServer server;
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
     private String inputFilePath = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\PICTURES\\1\\";
     private static int clientCount = 0;
 
-    public ClientHandler(Socket socket, Server server){
+    public ClientHandler(Socket socket, TCPServer server){
         try {
             this.server = server;
             this.socket = socket;

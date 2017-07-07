@@ -6,7 +6,7 @@ import main.com.abbyy.ocrsdk.Task;
 /**
  * Created by DRSPEED-PC on 19.04.2017.
  */
-public class Recognition {
+public class CloudRecognition {
     private static Client restClient;
     private static String PATH = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\PICTURES\\";
     private static String outputPath = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\RESULTS\\";
@@ -16,7 +16,7 @@ public class Recognition {
     public boolean isTaskComplete;
     public String resultFilePath;
 
-    public Recognition(String fileName) throws Exception {
+    public CloudRecognition(String fileName) throws Exception {
         System.out.println("Process documents using ABBYY Cloud OCR SDK.\n");
         long start = System.currentTimeMillis();
 

@@ -9,21 +9,21 @@ import java.util.List;
 /**
  * Created by DRSPEED-PC on 28.06.2017.
  */
-public class Server {
+public class TCPServer {
 
     private ServerSocket serverSocket = null;
     private List<ClientHandler> clientHandlerList;
     private long sleep = 2000;
 
-    public Server(int serverPort){
+    public TCPServer(int serverPort){
         clientHandlerList = new LinkedList<>();
-        System.out.println("main.Server starting...");
+        System.out.println("TCPServer starting...");
         try {
             serverSocket = new ServerSocket(serverPort);
         } catch (Exception e){
             System.out.println(e.getStackTrace());
         }
-        System.out.println("main.Server socket init OK.");
+        System.out.println("TCPServer socket init OK.");
     }
 
     // TODO: 30.06.2017 запилить авторизацию пользователей. 
@@ -45,7 +45,7 @@ public class Server {
         } finally {
             try {
                 serverSocket.close();
-                System.out.println("main.Server closed.");
+                System.out.println("main.TCPServer closed.");
                 socket.close();
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
@@ -55,7 +55,7 @@ public class Server {
 
     public synchronized void newFileFromClient(ClientHandler handler, String fileName) {
         try {
-            Recognition recognition = new Recognition(fileName);
+            CloudRecognition recognition = new CloudRecognition(fileName);
             while (!recognition.isTaskComplete){
                 Thread.sleep(sleep);
             }
