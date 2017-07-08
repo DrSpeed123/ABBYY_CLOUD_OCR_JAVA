@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * Created by DRSPEED-PC on 29.06.2017.
  */
-public class ClientHandler implements Runnable {
+public class TCPClientHandler implements Runnable {
     private Socket socket;
     private TCPServer server;
     private DataInputStream dataInputStream;
@@ -14,7 +14,7 @@ public class ClientHandler implements Runnable {
     private String inputFilePath = "F:\\GIT\\ABBYY_OCR\\Abbyy.Ocrsdk.client\\PICTURES\\1\\";
     private static int clientCount = 0;
 
-    public ClientHandler(Socket socket, TCPServer server){
+    public TCPClientHandler(Socket socket, TCPServer server){
         try {
             this.server = server;
             this.socket = socket;

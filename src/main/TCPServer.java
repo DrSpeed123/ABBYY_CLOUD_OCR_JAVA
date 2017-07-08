@@ -12,7 +12,7 @@ import java.util.List;
 public class TCPServer {
 
     private ServerSocket serverSocket = null;
-    private List<ClientHandler> clientHandlerList;
+    private List<TCPClientHandler> clientHandlerList;
     private long sleep = 2000;
 
     public TCPServer(int serverPort){
@@ -27,7 +27,7 @@ public class TCPServer {
     }
 
     // TODO: 30.06.2017 запилить авторизацию пользователей. 
-    public synchronized void addClient(ClientHandler clientHandler) {
+    public synchronized void addClient(TCPClientHandler clientHandler) {
         clientHandlerList.add(clientHandler);
     }
 
@@ -37,7 +37,7 @@ public class TCPServer {
             while(true) {
                 socket = serverSocket.accept();
                 System.out.println("New client connected.");
-                ClientHandler client = new ClientHandler(socket, this);
+                TCPClientHandler client = new TCPClientHandler(socket, this);
                 new Thread(client).start();
             }
         } catch (IOException e) {
@@ -53,13 +53,17 @@ public class TCPServer {
         }
     }
 
-    public synchronized void newFileFromClient(ClientHandler handler, String fileName) {
+    public synchronized void newFileFromClient(TCPClientHandler handler, String fileName) {
         try {
             CloudRecognition recognition = new CloudRecognition(fileName);
             while (!recognition.isTaskComplete){
                 Thread.sleep(sleep);
             }
             System.out.println("Result recieved from cloud.");
+            /**
+             * Uncomment for OpenCV recognition.
+             */
+//            OpenCvRecognition recognition = new OpenCvRecognition(fileName);
             handler.transferAnswer(recognition.resultFilePath);
 
         } catch (Exception e) {

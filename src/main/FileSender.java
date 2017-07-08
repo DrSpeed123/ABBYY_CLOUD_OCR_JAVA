@@ -6,9 +6,9 @@ package main;
 public class FileSender implements Runnable{
     private String fileName;
     private TCPServer server;
-    ClientHandler handler;
+    TCPClientHandler handler;
 
-    public FileSender(ClientHandler handler, String fileName, TCPServer server) {
+    public FileSender(TCPClientHandler handler, String fileName, TCPServer server) {
         this.fileName = fileName;
         this.server = server;
         this.handler = handler;
