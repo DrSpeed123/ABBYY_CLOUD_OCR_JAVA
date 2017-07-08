@@ -1,2 +1,4 @@
 *.java___jb_tmp___
 *.class
+/main/
+/test/
