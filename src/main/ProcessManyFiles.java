@@ -1,3 +1,5 @@
+package main;
+
 import com.abbyy.ocrsdk.*;
 import java.util.*;
 import java.io.*;

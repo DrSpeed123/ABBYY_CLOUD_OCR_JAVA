@@ -1,3 +1,5 @@
+package main;
+
 import com.abbyy.ocrsdk.Client;
 import com.abbyy.ocrsdk.Task;
 

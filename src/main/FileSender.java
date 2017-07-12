@@ -1,5 +1,4 @@
-import java.io.BufferedInputStream;
-import java.io.File;
+package main;
 
 /**
  * Created by DRSPEED-PC on 29.06.2017.
